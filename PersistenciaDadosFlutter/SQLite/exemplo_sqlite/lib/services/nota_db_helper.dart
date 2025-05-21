@@ -8,9 +8,8 @@ class NotaDbHelper {
   Database? _database; //classe de conexão com o BD
 
 static const String DB_NAME = "notas.db";
-static const TABLE_NAME = "notas.db";
+static const TABLE_NAME = "notas";
 static const String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS $TABLE_NAME(id INTEGER PRIMARY KEY AUTOINCREMENT, titulo TEXT NOT NULL, conteudo TEXT NOT NULL)";
-
 
   //métodos de conexão
 
@@ -74,7 +73,6 @@ static const String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS $TABLE_NAME(i
     );
   }
 
-  //deleteBD
-
+  
 
 }
