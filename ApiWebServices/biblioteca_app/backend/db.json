@@ -19,6 +19,11 @@
       "id": "1290",
       "nome": "Maria Joana",
       "email": "maria@gmail.com"
+    },
+    {
+      "id": "1290",
+      "nome": "Nicki Minaj",
+      "email": "nickita@gmail.com"
     }
   ],
   "livros": [
@@ -32,7 +37,7 @@
       "id": "2",
       "titulo": "50 Tons para o Sucesso",
       "autor": "J. Edington",
-      "disponivel": true
+      "disponivel": false
     }
   ],
   "emprestimos": [

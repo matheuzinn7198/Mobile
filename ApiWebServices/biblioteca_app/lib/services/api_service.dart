@@ -3,12 +3,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String _baseUrl = "http://10.109.197.5:3010";
+  //atributos e métodos da Classe e não do Obj
+  // base URL para Conexão API
+  //static -> transforma o atributo em atributo da classe não do obj
+  static const String _baseUrl = "http://10.109.197.6:3010";
 
   // GET (Listar todos os Recursos)
   static Future<List<dynamic>> getList(String path) async {
-    final res = await http.get(Uri.parse("$_baseUrl/$path"));
-    if (res.statusCode == 200) return json.decode(res.body);
+                                         //http://10.109.197.6:3010/livros
+    final res = await http.get(Uri.parse("$_baseUrl/$path"));  //uri -> convert string -> URL
+    //decode -> String/Json -> Dart/Map
+    if (res.statusCode == 200) return json.decode(res.body); // deu certo convert as resposta de json
+    //se não deu certo -> gerar um erro
     throw Exception("Falha ao Carregar Lista de $path");
   }
 
@@ -22,7 +28,9 @@ class ApiService {
   // POST (Criar novo Recurso)
   static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
     final res = await http.post(
+      //endereço da api
       Uri.parse("$_baseUrl/$path"),
+      //headers
       headers: {"Content-Type": "application/json"}, // corrigido
       body: json.encode(body),
     );
