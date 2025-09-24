@@ -115,6 +115,8 @@ graph TD
 
     ```mermaid
 
+    graph TD
+
         A[Ínicio] --> B {Login Usuário}
     B --> C[Inserir Email e Senha] 
     C --> D{Validar as Credenciais}
