@@ -1,4 +1,5 @@
 //classe para gerenciar o relacionamento do modelo com a interface
+
 import 'dart:io';
 
 import 'package:cine_favorite/models/favorite_movie.dart';
@@ -9,10 +10,10 @@ import 'package:path_provider/path_provider.dart';
 
 class FavoriteMovieController {
   //atributos
-  final _auth = FirebaseAuth.instance;//conecta com Auth do Firebase
-  final _db = FirebaseFirestore.instance;//conecta com o FireStore
+  final _auth = FirebaseAuth.instance; //conecta com Auth do Firebase
+  final _db = FirebaseFirestore.instance; //conecta com o FireStore
 
-  //criar um User => método para buscar o usuário logado
+  //Criar um User => método para buscar o usuário logado
   User? get currentUser => _auth.currentUser;
 
   //métodos para Favorite Movie
@@ -33,23 +34,25 @@ class FavoriteMovieController {
     final movie = FavoriteMovie(
       id: movieData["id"], 
       title: movieData["title"], 
-      posterPath: movieData["poster_path"]);
+      posterPath: imagemFile.path.toString()); //arrumar o endereço da imagem
 
-      //adicionar o OBJ ao FireStore
-      await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
-      .doc(movie.id.toString()).set(movie.toMap());
+    //adicioanr o OBj ao FireStore
+    await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
+    .doc(movie.id.toString()).set(movie.toMap());
   }
-
-  //ListFavorite => pegar a lista de filmes do BD
+  
+  //listFavorite => Pegar a Lista de Filmes no BD
   //Stream => listener, pega a lista de favoritos sempre que for modificada
   Stream<List<FavoriteMovie>> getFavoriteMovies(){
     //verifica se o usuário existe
-    if(currentUser ==null) return Stream.value([]);//retorna a lista vazia caso não tenha usuario
+    if(currentUser ==null) return Stream.value([]); //retrona a lista vazia caso não tenha usuário
 
-    return _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
-    .snapshots().map(
-      (snapshot)=> snapshot.docs.map(
-      (doc)=>FavoriteMovie.fromMap(doc.data())).toList());
+    return _db.collection("users")
+    .doc(currentUser!.uid)
+    .collection("favorite_movies")
+    .snapshots()
+    .map((e)=> e.docs.map(
+      (i)=>FavoriteMovie.fromMap(i.data())).toList());
   }
 
   //removeFavorite
@@ -58,8 +61,8 @@ class FavoriteMovieController {
     await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
     .doc(movieId.toString()).delete();
 
-  //deletar a imagem do diretório
-  final imagemPath = await getApplicationDocumentsDirectory();
+    //deletar a imagem do diretório
+    final imagemPath = await getApplicationDocumentsDirectory();
     final imagemFile = File("${imagemPath.path}/$movieId.jpg");
     try {
       await imagemFile.delete();
@@ -68,7 +71,7 @@ class FavoriteMovieController {
     }
 
   }
-  
+
   //updateRating
   void updateMovieRating (int movieId, double rating) async{
     if(currentUser == null) return;
