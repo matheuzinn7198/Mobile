@@ -1,5 +1,5 @@
-name: sa02_geolocator_api_image
-description: "A new Flutter project."
+name: sa_somativo
+description: "App de registro de ponto com geolocalização e biometria"
 publish_to: 'none'
 version: 0.1.0
 
