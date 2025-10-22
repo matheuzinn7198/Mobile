@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.cine_favorite"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

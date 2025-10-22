@@ -1,6 +1,7 @@
 //Tela para Procurar Filmes na API , pode adicionar o filme aos Favoritos
 
 import 'package:cine_favorite/controllers/favorite_movie_controller.dart';
+import 'package:cine_favorite/models/favorite_movie.dart';
 import 'package:cine_favorite/services/tmdb_service.dart';
 import 'package:flutter/material.dart';
 
@@ -83,7 +84,7 @@ class _SearchMovieViewState extends State<SearchMovieView> {
                   subtitle: Text(movie["release_date"]),
                   trailing: IconButton(
                     onPressed: () async{
-                      _favMovieController.addFavorite(movie);
+                      _favMovieController.addFavorite(movie as FavoriteMovie);
                       //mensagem
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("${movie["title"]} adicionado com Sucesso"))

@@ -1,81 +1,46 @@
-//classe para gerenciar o relacionamento do modelo com a interface
-
-import 'dart:io';
-
-import 'package:cine_favorite/models/favorite_movie.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/favorite_movie.dart';
+import '../services/firebase_service.dart';
+
 
 class FavoriteMovieController {
-  //atributos
-  final _auth = FirebaseAuth.instance; //conecta com Auth do Firebase
-  final _db = FirebaseFirestore.instance; //conecta com o FireStore
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  //Criar um User => método para buscar o usuário logado
-  User? get currentUser => _auth.currentUser;
+  // Retorna Stream<List<FavoriteMovie>> para usar no StreamBuilder
+  Stream<List<FavoriteMovie>> getFavoriteMovies() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return Stream.value([]);
 
-  //métodos para Favorite Movie
-
-  //addFavorite => adiciona o filme a lista de Favoritos
-  void addFavorite(Map<String,dynamic> movieData) async{
-    //usar bibliotecas path e path_provider para armazenar a img no celular
-    //baixar a imagem da internet
-    final imagemUrl = "https://image.tmdb.org/t/p/w500${movieData["poster_path"]}";
-    //https://image.tmdb.org/t/p/w500/6vbxUh6LWHGhfuPI7GrimQaXNsQ.jpg
-    final responseImg = await http.get(Uri.parse(imagemUrl));
-    //armazenar a imagem no dispositivo
-    final imagemDir = await getApplicationDocumentsDirectory();
-    final imagemFile = File("${imagemDir.path}/${movieData["id"]}.jpg");
-    await imagemFile.writeAsBytes(responseImg.bodyBytes);
-
-    //criar o OBJ no DB
-    final movie = FavoriteMovie(
-      id: movieData["id"], 
-      title: movieData["title"], 
-      posterPath: imagemFile.path.toString()); //arrumar o endereço da imagem
-
-    //adicioanr o OBj ao FireStore
-    await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
-    .doc(movie.id.toString()).set(movie.toMap());
-  }
-  
-  //listFavorite => Pegar a Lista de Filmes no BD
-  //Stream => listener, pega a lista de favoritos sempre que for modificada
-  Stream<List<FavoriteMovie>> getFavoriteMovies(){
-    //verifica se o usuário existe
-    if(currentUser ==null) return Stream.value([]); //retrona a lista vazia caso não tenha usuário
-
-    return _db.collection("users")
-    .doc(currentUser!.uid)
-    .collection("favorite_movies")
-    .snapshots()
-    .map((e)=> e.docs.map(
-      (i)=>FavoriteMovie.fromMap(i.data())).toList());
+    final col = _db.collection('users').doc(user.uid).collection('favorites');
+    return col.snapshots().map((snap) {
+      return snap.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        // injeta o id do documento para operações de remoção/atualização se necessário
+        data['docId'] = doc.id;
+        return FavoriteMovie.fromMap(data);
+      }).toList();
+    });
   }
 
-  //removeFavorite
-  void removeFavoriteMovie (int movieId) async{
-    if(currentUser == null) return;
-    await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
-    .doc(movieId.toString()).delete();
+  // Adiciona favorito no Firestore (subcoleção do usuário)
+  Future<void> addFavorite(FavoriteMovie movie) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw FirebaseAuthException(code: 'NO_USER', message: 'Usuário não autenticado');
 
-    //deletar a imagem do diretório
-    final imagemPath = await getApplicationDocumentsDirectory();
-    final imagemFile = File("${imagemPath.path}/$movieId.jpg");
-    try {
-      await imagemFile.delete();
-    } catch (e) {
-      print("erro ao deletar img");
-    }
-
+    final col = _db.collection('users').doc(user.uid).collection('favorites');
+    final map = movie.toMap();
+    // remova campos que não devem ser salvos (ex: docId gerado pelo Firestore)
+    map.remove('docId');
+    map.remove('id'); // se tiver id local do filme
+    await col.add(map);
   }
 
-  //updateRating
-  void updateMovieRating (int movieId, double rating) async{
-    if(currentUser == null) return;
-    await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
-    .doc(movieId.toString()).update({"rating":rating});
+  // Remove favorito pelo id do documento no Firestore (docId)
+  Future<void> removeFavorite(String docId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    await _db.collection('users').doc(user.uid).collection('favorites').doc(docId).delete();
   }
 }

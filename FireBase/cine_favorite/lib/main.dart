@@ -3,11 +3,16 @@ import 'package:cine_favorite/views/login_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'auth_wrapper.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 void main() async{ //na main é estabelecida uma conexão com o FireBase
   //garantir o carregamento dos widgets primeiro
   WidgetsFlutterBinding.ensureInitialized();
+
+  //carrega .env
+  await dotenv.load();
 
   //conectar com o firebase
   await Firebase.initializeApp();

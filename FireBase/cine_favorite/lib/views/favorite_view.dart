@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:cine_favorite/controllers/favorite_movie_controller.dart';
 import 'package:cine_favorite/models/favorite_movie.dart';
-import 'package:cine_favorite/views/search_movie_movie_view.dart';
+import 'package:cine_favorite/views/search_movie_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
